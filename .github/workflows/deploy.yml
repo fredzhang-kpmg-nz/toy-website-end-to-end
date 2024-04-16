@@ -118,7 +118,7 @@ jobs:
       with:
         app-name: ${{ needs.deploy.outputs.appServiceAppName }}
         package: website/publish.zip
-  
+
   deploy-database:
     needs: deploy
     environment: ${{ inputs.environmentType }}
@@ -136,8 +136,8 @@ jobs:
       with:
         server-name: ${{ needs.deploy.outputs.sqlServerFullyQualifiedDomainName }}
         connection-string: ${{ format('Server={0};Initial Catalog={1};User Id={2};Password={3};', needs.deploy.outputs.sqlServerFullyQualifiedDomainName, needs.deploy.outputs.sqlDatabaseName, inputs.sqlServerAdministratorLogin, secrets.sqlServerAdministratorLoginPassword) }}
-        dacpac-package: database/ToyCompany.Database.dacpac      
-  
+        dacpac-package: database/ToyCompany.Database.dacpac
+
   seed-database:
     needs:
     - deploy
@@ -158,8 +158,8 @@ jobs:
       with:
         server-name: ${{ needs.deploy.outputs.sqlServerFullyQualifiedDomainName }}
         connection-string: ${{ format('Server={0};Initial Catalog={1};User Id={2};Password={3};', needs.deploy.outputs.sqlServerFullyQualifiedDomainName, needs.deploy.outputs.sqlDatabaseName, inputs.sqlServerAdministratorLogin, secrets.sqlServerAdministratorLoginPassword) }}
-        sql-file: 'deploy/sample-data/Toys.sql'      
-  
+        sql-file: 'deploy/sample-data/Toys.sql'
+
   seed-storage-account:
     needs: deploy
     environment: ${{ inputs.environmentType }}
@@ -177,20 +177,19 @@ jobs:
       name: Upload sample images
       with:
         inlineScript: |
-          az storage blob upload-batch \
-            --account-name ${{ needs.deploy.outputs.storageAccountName }} \
-            --destination ${{ needs.deploy.outputs.storageAccountImagesBlobContainerName }} \
-            --source 'deploy/sample-data/toyimages'
-        
+            az storage blob upload-batch \
+              --account-name ${{ needs.deploy.outputs.storageAccountName }} \
+              --destination ${{ needs.deploy.outputs.storageAccountImagesBlobContainerName }} \
+              --source 'deploy/sample-data/toyimages'
+
   smoke-test:
     runs-on: ubuntu-latest
-    needs: 
+    needs:
     - deploy
     - deploy-website
     - deploy-database
     - seed-database
     - seed-storage-account
-    
     steps:
     - uses: actions/checkout@v3
     - run: |
